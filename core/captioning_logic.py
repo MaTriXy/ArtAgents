@@ -281,6 +281,8 @@ def generate_captions_for_selected(
             use_ollama_api_options=True,
             release_model_on_change=False,
             selected_role_or_team=agent_or_team_display_name,
+            clean_artifacts_flag=True, # <--- THE FIX IS HERE
+            # States
             current_settings=settings,
             models_data_state=models_data,
             limiters_data_state=limiters_data,
@@ -292,12 +294,6 @@ def generate_captions_for_selected(
         )
         current_session_history = updated_session_history_list # Capture updated history
 
-        # Debug Prints
-        print(f"\nDEBUG CAPTIONING: Filename: {selected_filename}")
-        print(f"DEBUG CAPTIONING: Raw Response Type: {type(response_text)}")
-        print(f"DEBUG CAPTIONING: Raw Response Text: >>>{response_text}<<<")
-
-        # Check for errors from agent execution
         if response_text is None or isinstance(response_text, str) and (response_text.startswith("Error:") or response_text.startswith("⚠️ Error:")):
              raise ValueError(f"Agent/Team returned an error: {response_text}")
 
@@ -305,10 +301,9 @@ def generate_captions_for_selected(
         if not generated_caption or generated_caption.startswith("Error:"):
              raise ValueError(f"Agent/Team returned empty or error response: '{generated_caption}'")
 
-        last_caption_generated = generated_caption # Store for return
+        last_caption_generated = generated_caption
         print(f"    Generated Caption (Stripped): {generated_caption[:100]}...")
 
-        # Determine final content and action message based on generate_mode
         action_taken = ""
         final_caption_to_write = generated_caption
 
@@ -320,17 +315,13 @@ def generate_captions_for_selected(
             action_taken = "Prepended" if caption_exists else "Written"
         elif caption_exists and generate_mode == "Overwrite":
             action_taken = "Overwritten"
-        elif not caption_exists: # Handles Overwrite mode when file doesn't exist
+        elif not caption_exists:
              action_taken = "Written"
-        # Skip case was handled earlier
 
-        # Save the caption
         try:
-            print(f"DEBUG CAPTIONING: Preparing to write to {text_path}")
-            print(f"DEBUG CAPTIONING: Content to Write: >>>{final_caption_to_write}<<<")
             with open(text_path, 'w', encoding='utf-8') as f:
                 f.write(final_caption_to_write)
-            updated_captions[selected_filename] = final_caption_to_write # Update the dict state
+            updated_captions[selected_filename] = final_caption_to_write
             msg = f"- Success {selected_filename}: Caption generated and file {action_taken}."
             print(f"    {msg}")
             status_messages.append(msg)
@@ -341,31 +332,27 @@ def generate_captions_for_selected(
              status_messages.append(msg)
              error_count += 1
 
-    except Exception as e_gen: # Catch errors during image open or agent call
+    except Exception as e_gen:
         msg = f"- Error processing {selected_filename}: {e_gen}"
         print(f"    {msg}")
         status_messages.append(msg)
         error_count += 1
     finally:
-         # Ensure image file is closed if it was opened
          if img:
              try: img.close()
              except Exception as e_close: print(f"    Warning: Error closing image file {selected_filename}: {e_close}")
 
-    # Compile final status message for the single image operation
     end_time = time.time()
     duration = end_time - start_time
     status_prefix = f"Caption generation for '{selected_filename}' finished in {duration:.2f}s. "
     if processed_count == 1: status_prefix += "Status: Success."
-    elif error_count >= 1: status_prefix += "Status: Error." # Changed >= 1
+    elif error_count >= 1: status_prefix += "Status: Error."
     elif skipped_count == 1: status_prefix += "Status: Skipped."
-    else: status_prefix += "Status: Unknown." # Should not happen
+    else: status_prefix += "Status: Unknown."
     final_status = status_prefix + "\n" + "\n".join(status_messages)
     print(final_status)
 
-    # Return: status_message, updated_captions_dict, caption_generated (for display), updated_session_history
     return final_status, updated_captions, last_caption_generated, current_session_history
-
 
 # MODIFIED: Loops and calls the MODIFIED generate_captions_for_selected
 def generate_captions_for_all(
