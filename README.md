@@ -146,10 +146,10 @@ For more detailed information, please refer to the [documents](docs/index.md) in
 *   Copy-to-clipboard button added.
 *   Consolidated "Info" tab implemented.
 *   Error handling reviewed and improved.
+*   **Gradio 5.x Upgrade:** Evaluate and execute upgrade from Gradio 3.x.
 
 **Phase 1: Foundational Expansion & Modernization (Current Focus)**
 
-*   **Gradio 5.x Upgrade:** Evaluate and execute upgrade from Gradio 3.x.
 *   **Implement Select Novel Synthesis Strategies:** Add 2-3 creative strategies (e.g., Metaphorical Synthesis, Conceptual Blending) to `agent_manager.py` and Team Editor UI.
 *   **NLP Library Integration (`nlpaug`):** Integrate for noise/synonym capabilities within strategies or as agent steps.
 *   **Unit Testing Expansion:** Write comprehensive `pytest` tests for core logic and new features.

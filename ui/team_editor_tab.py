@@ -29,9 +29,29 @@ def create_team_editor_tab(initial_team_names, initial_available_agent_names):
                 team_name_textbox = gr.Textbox(label="Team Name")
                 team_description_textbox = gr.Textbox(label="Team Description", lines=2)
                 assembly_strategy_radio = gr.Radio(
-                    choices=["concatenate", "refine_last", "summarize_all", "structured_concatenate"],
+                    choices=[
+                        "concatenate", 
+                        "refine_last", 
+                        "summarize_all", 
+                        "structured_concatenate",
+                        "metaphorical_synthesis",
+                        "conceptual_blend",
+                        "stylistic_mashup"
+                    ],
                     value="concatenate",
                     label="Final Output Strategy"
+                )
+                # The 'info' text is now a separate Markdown component for rich formatting
+                gr.Markdown(
+                    """
+                    - **concatenate**: Joins all step outputs directly.
+                    - **refine_last**: Uses only the last agent's output.
+                    - **summarize_all**: A final LLM call synthesizes all outputs into a coherent whole.
+                    - **structured_concatenate**: Joins outputs with clear labels for each agent/step.
+                    - **metaphorical_synthesis**: Dynamically chooses a metaphor to creatively reinterpret the combined inputs.
+                    - **conceptual_blend**: Fuses the core ideas from all steps into a novel, hybrid concept.
+                    - **stylistic_mashup**: Dynamically chooses a literary or textual style and rewrites the combined inputs.
+                    """
                 )
 
         gr.Markdown("---")
